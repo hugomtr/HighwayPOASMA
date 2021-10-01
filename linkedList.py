@@ -7,6 +7,7 @@ class Node:
         self.exit = exit
         # 0 = pas une sortie; x > 0 = sortie numéro x
     
+    
 class CircularLinkedList:
 
     def __init__(self):
