@@ -1,7 +1,6 @@
 class Vehicle:
 
-    def __init__(self,speed,but,x,y):
-        self.speed = 2
+    def __init__(self,but,y,x=0,speed=1):
         self.but = but
         self.x = x
         self.y = y
@@ -35,8 +34,14 @@ class Vehicle:
 
 class State:
 
-    def __init__(self,highway):
+    def __init__(self,highway,exit):
         self.highway = np.zeros((2,100))
-
-    def update(self):
+        self.exit = np.array([2,18,34,78])
     
+    def update(self):
+        nombre_voiture_entrantes = 2 
+
+        voitures = []
+        for i in range(nombre_voiture_entrantes):
+            voitures[i] = vehicle(exit[1],)
+            
