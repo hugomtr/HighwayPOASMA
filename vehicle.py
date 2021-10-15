@@ -13,7 +13,6 @@ class Vehicle:
 
     def move():
         """
-        
         """
 
     def speedUp():
@@ -33,4 +32,11 @@ class Vehicle:
         """
         """
 
+
+class State:
+
+    def __init__(self,highway):
+        self.highway = np.zeros((2,100))
+
+    def update(self):
     
