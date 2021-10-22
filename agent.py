@@ -3,7 +3,6 @@
 """
 
 import numpy as np
-import math as mt
 
 
 class Agent: 
@@ -53,11 +52,11 @@ class Agent:
         else:
             dirs = np.zeros(4)
             
-            dirs[0] = mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y - 10, 2))
-            dirs[1] = mt.sqrt(mt.pow(self.xGoal - self.x + 10, 2) + mt.pow(self.yGoal - self.y, 2))
-            dirs[2] = mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y + 10, 2))
-            dirs[3] = mt.sqrt(mt.pow(self.xGoal - self.x - 10, 2) + mt.pow(self.yGoal - self.y, 2))
-            
+            dirs[0] = np.sqrt((self.xGoal - self.x)**2 + (self.yGoal - self.y - 10)**2)
+            dirs[1] = np.sqrt((self.xGoal - self.x + 10)**2 + (self.yGoal - self.y)**2)
+            dirs[2] = np.sqrt((self.xGoal - self.x)**2 + (self.yGoal - self.y + 10)**2)
+            dirs[3] = np.sqrt((self.xGoal - self.x - 10)**2 + (self.yGoal - self.y)**2)
+
             dirToGo = np.argmax(dirs)
             
             print("Dirs : ", dirs)

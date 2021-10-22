@@ -1,51 +1,33 @@
-import tkinter as tk
-import agent as agt
+import matplotlib.pyplot as plt
+import numpy as np
+import copy
 
 
-# Events pour les touches Entrer et les fleches
-def keypressReturn(event):
-    for a in agents:
-        a.moveToGoal()
-    
-def keypressLeft(event):
-    for a in agents:
-        a.left()
-    
-def keypressRight(event):
-    for a in agents:
-        a.right()
-    
-def keypressUp(event):
-    for a in agents:
-        a.up()
-    
-def keypressDown(event):
-    for a in agents:
-        a.down()
-    
+def carte_implementation():
+    nsroad1 = np.array([5,11,18,28,37,43,49,59,76,89,95])
+    nsroad2 = nsroad1+1
+    ewroad1 = np.array([7,13,22,45,67,78,90])
+    ewroad2 = ewroad1+1
+    mat = np.zeros((100,100))
 
+    for c in nsroad1:
+        mat[:,c] += 1
+    for l in ewroad1:
+        mat[l,:] += 1
 
-## MISE EN PLACE DE L'INTERFACE GRAPHIQUE
-windowSize = 400
+    for c in nsroad2:
+        mat[:,c] += 3
+    for l in ewroad2:
+        mat[l,:] += 3
+        
+    return city
 
-root = tk.Tk()
-canvas = tk.Canvas(root, height=windowSize, width=windowSize)
-canvas.pack()
+matsens1 = carte_implementation()
+feu = copy.deepcopy(matsens1)
+"""
+See the matrix
 
-a1 = agt.Agent(130, 260, 350, 20, canvas)
-a2 = agt.Agent(50, 170, 380, 380, canvas)
-a3 = agt.Agent(350, 50, 30, 370, canvas)
-a4 = agt.Agent(200, 310, 90, 90, canvas)
+plt.imshow(city)
+plt.show()
+"""
 
-# Ensemble d'agent
-agents = [a1, a2, a3, a4]
-
-#Event qui intervient à chaque frappe au clavier
-root.bind("<Return>", keypressReturn)
-root.bind("<Left>", keypressLeft)
-root.bind("<Right>", keypressRight)
-root.bind("<Up>", keypressUp)
-root.bind("<Down>", keypressDown)
-
-
-root.mainloop()
