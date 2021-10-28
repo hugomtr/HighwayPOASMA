@@ -4,39 +4,38 @@ import time
 
 class Vehicle:
     
-    def __init__(self,but,x,y,sens,speed=1):
+    def __init__(self,but,x,y,speed=1,at_intersection = False,direction = None):
         self.but = but
         self.x = x
         self.y = y
         self.speed = speed
-        self.sens = sens
+        self.at_intersection = at_intersection
+        self.direction = direction
 
-
-    def find_diretion(self,x,y,matrix):
+    def find_direction(self,x,y,matrix):
         # the agent needs to go down
-        if matrix[y+1] in set(1,3) and matrix[y-1] == 0:
+        if matrix[y+1] == 1 and matrix[y-1] == 0:
             return np.array([1,0])
         # the agent needs to go up
-        if matrix[y+1] == 0 and matrix[y-1] in set(1,3):
+        if matrix[y+1] == 0 and matrix[y-1] == 1:
             return np.array([-1,0])
         # the agent needs to go right
-        if matrix[x-1] in set(1,3) and matrix[x+1] == 0:
+        if matrix[x-1] == 1 and matrix[x+1] == 0:
             return np.array([0,1])
         # the agent needs to go left
-        if matrix[x-1] in set(1,3) and matrix[x+1] == 0:
+        if matrix[x-1] == 1 and matrix[x+1] == 0:
             return np.array([0,-1])
 
 
     def vision_agent(self,x,y,direction,matrix):
         vision = []
+
         # adding forward cases
         for i in range(self.speed):
             vision.append(matrix[x+direction[0]*i,y+direction[1]*i])
-        
-        # adding surrounding cases
-        rv_direction = direction[::-1]  # reverse order
-        vision.append(matrix[x+rv_direction[0],y+rv_direction[1]])
-        vision.append(matrix[x-rv_direction[0],y-rv_direction[1]])
+
+        vision.append(matrix[x+direction[1]+direction[0],y+direction[0]+direction[1]]) # adding element in reverse order to
+        vision.append(matrix[x-direction[1]+direction[0],y-direction[0]+direction[1]]) # obtain front left end right diagonal element
         return np.array(vision)
 
 
@@ -50,56 +49,107 @@ class Vehicle:
         forward_vision = self.vision_agent(x,y,direction,matrix)[:self.speed]
         count = 0
         for case in forward_vision[1:]:
-            if matrix[case[0],case[1]] == 12:
+            # we meet an other vehicle = 12 or we are at an intersection 4,6
+            if matrix[case[0],case[1]] in set((2,12)):
                 return forward_vision[count]
             count += 1
             # à implementer ensuite tester si l'on tombe sur un feu rouge
             # ... #
-        # si aucun obstacle on retourne 
+        # si aucun obstacle 
         return forward_vision[-1]
 
-
-    def move_forward(self,x,y):
-        direction = self.find_direction(x,y)
+    
+    def move_forward(self,x,y,direction):
         new_pos = self.handle_obstacle(x,y,direction,self.speed)         
         x,y = new_pos[0],new_pos[1]
         # reste à faire ->
         # gérer le cas où les voitures quittent la matrice
 
     
+    def allowed_direction_att_intersection(self,x,y,matrix,direction):
+        allowed_case = [matrix[x+direction[0],y+direction[1]],
+                        matrix[x+direction[0]*2,y+direction[1]*2],
+                        matrix[x+direction[1],y+direction[0]]]
+        
+        allowed_index = [[x+direction[0],y+direction[1]],
+                        [x+direction[0]*2,y+direction[1]*2],
+                        [x+direction[1],y+direction[0]]]
+        allowed_index = [np.array(u) for u in allowed_index]
+        return allowed_case, allowed_index   
+
+
     def heuristique(self,x,y,but):
         return np.abs(but[0]-x) + np.abs(but[1]-y)
     
     
-    def choose_best_direction(self,x,y):
-        raise NotImplementedError
+    def choose_best_direction(self,possible_case):
+        frontier = [self.heuristique(case[0],case[1],self.but) for case in possible_case].sort()
+        return frontier[0]
 
 
-    def handle_configuration_encountered(self,x,y,matrix):
+    def move_through_intersection(self,best_case,possible_move,matrix):
+        distance_from_best_case = possible_move[0].index(best_case)
+        index = possible_move[1][distance_from_best_case]
+        if index <= self.speed:
+            matrix[index[0],index[1]] = 12
+            self.x,self.y = index[0],index[1]
+            return False
+        else:
+            matrix[best_case[0],best_case[1]] = 12
+            self.x,self.y = best_case[0],best_case[1]
+            # on a atteint la case voulue de l'intersection on peut maintenant quitter l'intersection
+            return True
+
+
+    def update_direction(self,oldx,oldy,possible_move,best_case):
+        distance_from_best_case = possible_move[0].index(best_case)
+        # indice dans la matrice de l'element atteint
+        best_case_index = possible_move[1][distance_from_best_case]
+
+        if distance_from_best_case > 1:  # cas simple
+            index_before_best_case = possible_move[1][distance_from_best_case-1]
+            # update direction 
+            self.direction = best_case_index - index_before_best_case 
+        else:     # cas relou (l'agent tourne à droite à l'intersection)
+            couple = self.direction[0],self.direction[1] # direction transformé en tuple
+            dico = {(-1,0) : (0,1),(0,1) : (1,0), (1,0) : (0,-1), (0,-1) : (-1,0)} # correspondance direction nouvelle direction
+            self.direction = dico[couple]
+
+
+    def handle_intersection(self,x,y,matrix,direction):
+        x_copy, y_copy = x,y
+        # possible_move[0] = value , possible_move[1] = index
+        possible_move = self.allowed_direction_att_intersection(x,y,matrix,direction)
+        best_case = self.choose_best_direction(possible_move[0])
+        if self.move_through_intersection(best_case,possible_move,matrix):
+            self.update_direction(x_copy,y_copy,possible_move)
+        # update direction when exiting the intersection
+
+    def handle_configuration_encountered(self,x,y,direction,matrix):
         """ 
-        L'agent va rencontrer 3 config possible
+        L'agent va rencontrer 2 config possible
         -> deplacement sur un axe:
         dans ce cas démarche classique move_forward() 
-        -> sur le point d'integrer une intersection
-        dans ce cas 
         -> sur une intersetion
         dans ce cas choix entre 3 actions possibles: choix de la meilleure (heuristique de manhatan)
-            -turn_right()
-            -move_forward_intersection()
-            -turn_left()
-        on va determiner la config à l'aide de la fonction find_config()
+            -tourner à gauche
+            -aller de l'avant
+            -tourner à droite
         """
-        direction = self.find_direction()
-        next_position = np.array([x,y]) + direction
-        next_x,next_y = next_position[0],next_position[1]
-        if matrix[next_x,next_y] == 6 and self.sens == 1:
-            # checker les feux rouges
-            self.choose_best_direction(x,y)
-            
+        while self.x != self.but[0] and self.y != self.but[1]:
+            next_position = np.array([x,y]) + direction
+            next_x,next_y = next_position[0],next_position[1]
+            if matrix[next_x,next_y] == 1: # nous n'arrivons pas sur une intersection
+                self.move_forward(x,y,matrix,direction)
+            else:
+                self.handle_intersection(x,y,matrix,direction)
+
 
     def moveToGoal(self,x,y,matrix):
         """ fonction qui va gérer la voiture du début à la fin """
-        raise NotImplementedError
+        direction = self.find_direction()
+        self.handle_configuration_encountered(x,y,direction,matrix)
+
 
 # North South road 
 nsroad1 = np.array([5,11,18,28,37,43,49,59,76,89,95])
@@ -110,23 +160,24 @@ ewroad1 = np.array([7,13,22,45,67,78,90])
 ewroad2 = ewroad1+1
 mat = np.zeros((100,100)).astype('int8')
 
-
 for c in nsroad1:
     mat[:,c] += 1
 for l in ewroad1:
     mat[l,:] += 1
 
 for c in nsroad2:
-    mat[:,c] += 3
+    mat[:,c] += 1
 for l in ewroad2:
-    mat[l,:] += 3
+    mat[l,:] += 1
     
 # show the matrix -->
-plt.imshow(mat,cmap='hot')
+# plt.imshow(mat,cmap='hot')
+# plt.show()
+
+mattest = mat[15:40,15:40]
+mattest[13,13] = 10
+plt.imshow(mattest,cmap='hot')
 plt.show()
-
-mattest = mat[5:15,5:15]
-
 
 class State:
     
