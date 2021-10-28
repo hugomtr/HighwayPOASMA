@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import time
+import copy
 
 class Vehicle:
     
@@ -12,26 +12,11 @@ class Vehicle:
         self.at_intersection = at_intersection
         self.direction = direction
 
-    def find_direction(self,x,y,matrix):
-        # the agent needs to go down
-        if matrix[y+1] == 1 and matrix[y-1] == 0:
-            return np.array([1,0])
-        # the agent needs to go up
-        if matrix[y+1] == 0 and matrix[y-1] == 1:
-            return np.array([-1,0])
-        # the agent needs to go right
-        if matrix[x-1] == 1 and matrix[x+1] == 0:
-            return np.array([0,1])
-        # the agent needs to go left
-        if matrix[x-1] == 1 and matrix[x+1] == 0:
-            return np.array([0,-1])
-
-
     def vision_agent(self,x,y,direction,matrix):
         vision = []
 
         # adding forward cases
-        for i in range(self.speed):
+        for i in range(self.speed+1):
             vision.append(matrix[x+direction[0]*i,y+direction[1]*i])
 
         vision.append(matrix[x+direction[1]+direction[0],y+direction[0]+direction[1]]) # adding element in reverse order to
@@ -45,10 +30,10 @@ class Vehicle:
         Si il y'a self.speed cases de libres (sans usagers et feu vert ou rouge) dans la direction ou va l'agent 
         alors return True
         """
-        # on récupere ce qu'il y'a directement devant nous jusqu'a la case où l'on souhaite aller
         forward_vision = self.vision_agent(x,y,direction,matrix)[:self.speed]
         count = 0
-        for case in forward_vision[1:]:
+        # on récupere ce qu'il y'a directement devant nous jusqu'a la case où l'on souhaite aller
+        for case in forward_vision[1:]: 
             # we meet an other vehicle = 12 or we are at an intersection 4,6
             if matrix[case[0],case[1]] in set((2,12)):
                 return forward_vision[count]
@@ -59,9 +44,13 @@ class Vehicle:
         return forward_vision[-1]
 
     
-    def move_forward(self,x,y,direction):
+    def move_forward(self,x,y,direction,matrix):
         new_pos = self.handle_obstacle(x,y,direction,self.speed)         
+        oldx, oldy = x,y
+        
+        matrix[oldx,oldy] == 1
         x,y = new_pos[0],new_pos[1]
+
         # reste à faire ->
         # gérer le cas où les voitures quittent la matrice
 
@@ -79,6 +68,7 @@ class Vehicle:
 
 
     def heuristique(self,x,y,but):
+        # distance de manhatan
         return np.abs(but[0]-x) + np.abs(but[1]-y)
     
     
@@ -105,7 +95,6 @@ class Vehicle:
         distance_from_best_case = possible_move[0].index(best_case)
         # indice dans la matrice de l'element atteint
         best_case_index = possible_move[1][distance_from_best_case]
-
         if distance_from_best_case > 1:  # cas simple
             index_before_best_case = possible_move[1][distance_from_best_case-1]
             # update direction 
@@ -116,16 +105,17 @@ class Vehicle:
             self.direction = dico[couple]
 
 
-    def handle_intersection(self,x,y,matrix,direction):
+    def handle_intersection(self,x,y,road_matrix,vehicle_matrix,direction):
         x_copy, y_copy = x,y
         # possible_move[0] = value , possible_move[1] = index
-        possible_move = self.allowed_direction_att_intersection(x,y,matrix,direction)
+        possible_move = self.allowed_direction_att_intersection(x,y,road_matrix,direction)
         best_case = self.choose_best_direction(possible_move[0])
-        if self.move_through_intersection(best_case,possible_move,matrix):
+        if self.move_through_intersection(best_case,possible_move,vehicle_matrix):
             self.update_direction(x_copy,y_copy,possible_move)
         # update direction when exiting the intersection
 
-    def handle_configuration_encountered(self,x,y,direction,matrix):
+
+    def handle_configuration_encountered(self,x,y,direction,road_matrix,vehicle_matrix):
         """ 
         L'agent va rencontrer 2 config possible
         -> deplacement sur un axe:
@@ -139,16 +129,16 @@ class Vehicle:
         while self.x != self.but[0] and self.y != self.but[1]:
             next_position = np.array([x,y]) + direction
             next_x,next_y = next_position[0],next_position[1]
-            if matrix[next_x,next_y] == 1: # nous n'arrivons pas sur une intersection
-                self.move_forward(x,y,matrix,direction)
+            if road_matrix[next_x,next_y] == 1: # nous n'arrivons pas sur une intersection A corriger
+                self.move_forward(x,y,road_matrix,vehicle_matrix,direction)
             else:
-                self.handle_intersection(x,y,matrix,direction)
+                self.handle_intersection(x,y,road_matrix,vehicle_matrix,direction)
 
 
-    def moveToGoal(self,x,y,matrix):
+    def moveToGoal(self,x,y,road_matrix,vehicle_matrix):
         """ fonction qui va gérer la voiture du début à la fin """
         direction = self.find_direction()
-        self.handle_configuration_encountered(x,y,direction,matrix)
+        self.handle_configuration_encountered(x,y,direction,road_matrix,vehicle_matrix)
 
 
 # North South road 
@@ -158,24 +148,27 @@ nsroad2 = nsroad1+1
 # Est West Road
 ewroad1 = np.array([7,13,22,45,67,78,90])
 ewroad2 = ewroad1+1
-mat = np.zeros((100,100)).astype('int8')
+road_mat = np.zeros((100,100)).astype('int8')
 
 for c in nsroad1:
-    mat[:,c] += 1
+    road_mat[:,c] += 1
 for l in ewroad1:
-    mat[l,:] += 1
+    road_mat[l,:] += 1
 
 for c in nsroad2:
-    mat[:,c] += 1
+    road_mat[:,c] += 1
 for l in ewroad2:
-    mat[l,:] += 1
-    
-# show the matrix -->
+    road_mat[l,:] += 1
+
+vehicle_mat = np.zeros(road_mat.shape).astype('int8')
+mat = vehicle_mat + road_mat
+#show the matrix -->
 # plt.imshow(mat,cmap='hot')
 # plt.show()
 
-mattest = mat[15:40,15:40]
-mattest[13,13] = 10
+
+mattest = road_mat[15:40,15:40]
+mattest[13,13] = 12
 plt.imshow(mattest,cmap='hot')
 plt.show()
 
