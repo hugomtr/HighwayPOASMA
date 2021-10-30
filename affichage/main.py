@@ -25,6 +25,17 @@ def keypressDown(event):
     for a in agents:
         a.down()
 
+def keypressSpace(event): 
+    print("run")
+    autoRun()
+
+def autoRun():
+    for a in agents:
+        a.moveToGoal()
+
+    root.after(10, autoRun)
+
+
 
 
 ## MISE EN PLACE DE L'INTERFACE GRAPHIQUE
@@ -48,6 +59,8 @@ root.bind("<Left>", keypressLeft)
 root.bind("<Right>", keypressRight)
 root.bind("<Up>", keypressUp)
 root.bind("<Down>", keypressDown)
+root.bind("<r>", keypressSpace)
+
 
 
 root.mainloop()
