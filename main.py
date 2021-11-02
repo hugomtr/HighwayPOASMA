@@ -1,13 +1,30 @@
 import tkinter as tk
-import math
-import numpy as np
 import agent as agt
+import wall as wl
+
+## MISE EN PLACE DE L'INTERFACE GRAPHIQUE
+windowSize = 400
+
+root = tk.Tk()
+canvas = tk.Canvas(root, height=windowSize, width=windowSize)
+canvas.pack()
+
+a1 = agt.Agent(130, 260, 350, 20, canvas)
+a2 = agt.Agent(50, 170, 380, 380, canvas)
+a3 = agt.Agent(350, 50, 30, 370, canvas)
+a4 = agt.Agent(200, 310, 90, 90, canvas)
+
+wl1 = wl.wall(210, 40, 220, 360, canvas)
+wl1.draw()
+
+# Ensemble d'agent
+agents = [a1, a2, a3, a4]
 
 
 # Events pour les touches Entrer et les fleches
 def keypressReturn(event):
     for a in agents:
-        a.moveToGoal()
+        a.moveToGoal(wl1)
 
 def keypressLeft(event):
     for a in agents:
@@ -31,27 +48,9 @@ def keypressSpace(event):
 
 def autoRun():
     for a in agents:
-        a.moveToGoal()
+        a.moveToGoal(wl1)
 
     root.after(10, autoRun)
-
-
-
-
-## MISE EN PLACE DE L'INTERFACE GRAPHIQUE
-windowSize = 400
-
-root = tk.Tk()
-canvas = tk.Canvas(root, height=windowSize, width=windowSize)
-canvas.pack()
-
-a1 = agt.Agent(130, 260, 350, 20, canvas)
-a2 = agt.Agent(50, 170, 380, 380, canvas)
-a3 = agt.Agent(350, 50, 30, 370, canvas)
-a4 = agt.Agent(200, 310, 90, 90, canvas)
-
-# Ensemble d'agent
-agents = [a1, a2, a3, a4]
 
 #Event qui intervient à chaque frappe au clavier
 root.bind("<Return>", keypressReturn)
