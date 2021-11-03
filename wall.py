@@ -2,7 +2,6 @@
 @author: lucasaissaoui
 """
 
-
 class wall: 
 
     def __init__(self, x0, y0, x1, y1, canvas):

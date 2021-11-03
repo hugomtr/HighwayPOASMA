@@ -56,36 +56,32 @@ class Agent:
         if self.x == self.xGoal and self.y == self.yGoal:
             print("Goal")
         else:
-            actions = {"up": 0, "right": 0, "down": 0, "left": 0}
             
-            p0 = ps.position(self.x, self.y-1)
-            p1 = ps.position(self.x+1, self.y)
-            p2 = ps.position(self.x, self.y+1)
-            p3 = ps.position(self.x-1, self.y)
+            # Dict de toutes le positions possibles 
+            positions = {"up": ps.position(self.x, self.y-1, mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y - 1, 2))), 
+                         "right": ps.position(self.x+1, self.y, mt.sqrt(mt.pow(self.xGoal - self.x + 1, 2) + mt.pow(self.yGoal - self.y, 2))), 
+                         "down": ps.position(self.x, self.y+1, mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y + 1, 2))), 
+                         "left": ps.position(self.x-1, self.y, mt.sqrt(mt.pow(self.xGoal - self.x - 1, 2) + mt.pow(self.yGoal - self.y, 2)))}
             
-            positions = {"up": p0, "right": p1, "down": p2, "left": p3}
+            # Dict des positions libre
+            positionsFree = {}
             
-            actions["up"] = mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y - 1, 2))
-            actions["right"] = mt.sqrt(mt.pow(self.xGoal - self.x + 1, 2) + mt.pow(self.yGoal - self.y, 2))
-            actions["down"] = mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y + 1, 2))
-            actions["left"] = mt.sqrt(mt.pow(self.xGoal - self.x - 1, 2) + mt.pow(self.yGoal - self.y, 2))
-            
+            # On ajout les positions libres dict des positions libre (positionsFree)
             for p in positions : 
-                if wl1.free(positions[p].getX(), positions[p].getY()) == False:
-                    actions.pop(p)
+                if wl1.free(positions[p].getX(), positions[p].getY()):
+                    positionsFree[p] = ps.position(positions[p].getX(), positions[p].getY(), positions[p].getH())
                     
                     
+            # On recher la mailleure option parmis le positions libres
+            action = ""
+            h = 0
             
-            # Supprime les positions impossible
-            
-            #for a in actions :
-             #   if 
-            
-
-            action = max(actions, key=actions.get)
-            #print("Dirs : ", dirs)
-            #print("Dir : ", dirToGo)
-
+            for p in positionsFree: 
+                if positionsFree[p].getH() > h: 
+                    h = positionsFree[p].getH()
+                    action = p
+                    
+            # On execut l'actions qui a été selectionné
             if action == "up":
                 self.up()
             elif action == "right":
@@ -94,8 +90,6 @@ class Agent:
                 self.down()
             elif action == "left": 
                 self.left()
-            
-            print(wl1.free(self.x, self.y))
 
 
     def drawAgent(self):
