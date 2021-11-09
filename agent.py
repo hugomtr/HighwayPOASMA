@@ -2,13 +2,8 @@
 @author: lucasaissaoui
 """
 
-import numpy as np
 import math as mt
-
-import wall as wl
 import position as ps
-
-
 
 class Agent: 
 
@@ -53,10 +48,7 @@ class Agent:
 
     def moveToGoal(self, wl1):
 
-        if self.x == self.xGoal and self.y == self.yGoal:
-            print("Goal")
-        else:
-            
+        if not(self.x == self.xGoal and self.y == self.yGoal):
             # Dict de toutes le positions possibles 
             positions = {"up": ps.position(self.x, self.y-1, mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y - 1, 2))), 
                          "right": ps.position(self.x+1, self.y, mt.sqrt(mt.pow(self.xGoal - self.x + 1, 2) + mt.pow(self.yGoal - self.y, 2))), 

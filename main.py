@@ -2,11 +2,13 @@ import tkinter as tk
 import agent as agt
 import wall as wl
 
+import environment as env
+
 ## MISE EN PLACE DE L'INTERFACE GRAPHIQUE
 windowSize = 400
 
 root = tk.Tk()
-canvas = tk.Canvas(root, height=windowSize, width=windowSize)
+canvas = tk.Canvas(root, height=windowSize, width=windowSize, bg='white')
 canvas.pack()
 
 a1 = agt.Agent(130, 260, 350, 20, canvas)
@@ -14,17 +16,20 @@ a2 = agt.Agent(50, 170, 380, 380, canvas)
 a3 = agt.Agent(350, 50, 30, 370, canvas)
 a4 = agt.Agent(200, 310, 90, 90, canvas)
 
-wl1 = wl.wall(210, 40, 220, 360, canvas)
-wl1.draw()
+#wl1 = wl.wall(210, 40, 220, 360, canvas)
+#wl1.draw()
+
+env1 = env.Environment(windowSize, windowSize, canvas)
+env1.draw()
 
 # Ensemble d'agent
 agents = [a1, a2, a3, a4]
 
 
 # Events pour les touches Entrer et les fleches
-def keypressReturn(event):
+def keypressReturn(env):
     for a in agents:
-        a.moveToGoal(wl1)
+        a.moveToGoal(env1)
 
 def keypressLeft(event):
     for a in agents:
@@ -43,14 +48,13 @@ def keypressDown(event):
         a.down()
 
 def keypressSpace(event): 
-    print("run")
     autoRun()
 
 def autoRun():
     for a in agents:
-        a.moveToGoal(wl1)
+        a.moveToGoal(env1)
 
-    root.after(10, autoRun)
+    root.after(15, autoRun)
 
 #Event qui intervient à chaque frappe au clavier
 root.bind("<Return>", keypressReturn)
