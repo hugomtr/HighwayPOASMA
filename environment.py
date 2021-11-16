@@ -6,14 +6,29 @@ Created on Wed Oct 20 19:53:02 2021
 """
 
 import numpy as np
+from matplotlib import image
+from matplotlib import pyplot
 
 class Environment: 
-    def __init__(self, hauteur, largeur, canvas):
-        self.env = np.zeros((hauteur, largeur))
-        self.canvas = canvas
+    def __init__(self, file, canvas):
+        self.img = image.imread(file)
         
-        # Tracer un mur
-        self.env[210:220, 40:360] = 1
+        rgb_weights = [0.2989, 0.5870, 0.1140]
+
+        self.env = np.dot(self.img[...,:3], rgb_weights)
+
+        pyplot.imshow(self.env, cmap=pyplot.get_cmap("gray"))
+        pyplot.show()
+
+        for i in range(0, self.env.shape[0]): 
+            for j in range(0,self.env.shape[1]):
+                if self.env[i, j] < 0.5:
+                    self.env[i, j] = 1
+                else :
+                    self.env[i, j] = 0
+        
+        self.canvas = canvas
+        self.canvas.config(width=self.env.shape[0], height=self.env.shape[1])
         
 
     def draw(self):

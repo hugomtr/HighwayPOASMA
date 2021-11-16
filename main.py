@@ -5,7 +5,7 @@ import wall as wl
 import environment as env
 
 ## MISE EN PLACE DE L'INTERFACE GRAPHIQUE
-windowSize = 400
+windowSize = 600
 
 root = tk.Tk()
 canvas = tk.Canvas(root, height=windowSize, width=windowSize, bg='white')
@@ -16,15 +16,11 @@ a2 = agt.Agent(50, 170, 380, 380, canvas)
 a3 = agt.Agent(350, 50, 30, 370, canvas)
 a4 = agt.Agent(200, 310, 90, 90, canvas)
 
-#wl1 = wl.wall(210, 40, 220, 360, canvas)
-#wl1.draw()
-
-env1 = env.Environment(windowSize, windowSize, canvas)
+env1 = env.Environment("lab2.png", canvas)
 env1.draw()
 
 # Ensemble d'agent
 agents = [a1, a2, a3, a4]
-
 
 # Events pour les touches Entrer et les fleches
 def keypressReturn(env):

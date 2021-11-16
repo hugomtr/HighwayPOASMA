@@ -6,7 +6,7 @@ import math as mt
 import position as ps
 
 class Agent: 
-
+    
     def __init__(self, x, y, xGoal, yGoal, canvas):
         # Position courante de l'agent 
         self.x = x
