@@ -17,9 +17,6 @@ class Environment:
 
         self.env = np.dot(self.img[...,:3], rgb_weights)
 
-        pyplot.imshow(self.env, cmap=pyplot.get_cmap("gray"))
-        pyplot.show()
-
         for i in range(0, self.env.shape[0]): 
             for j in range(0,self.env.shape[1]):
                 if self.env[i, j] < 0.5:
