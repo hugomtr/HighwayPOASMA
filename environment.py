@@ -7,7 +7,6 @@ Created on Wed Oct 20 19:53:02 2021
 
 import numpy as np
 from matplotlib import image
-from matplotlib import pyplot
 
 class Environment: 
     def __init__(self, file, canvas):
@@ -33,6 +32,12 @@ class Environment:
             for j in range(0, self.env.shape[1]):
                 if self.env[i, j] == 1:
                     self.canvas.create_rectangle(i-0.5, j-0.5, i+0.5 , j+0.5, fill='black', outline='black')
+                    
+    def xShape(self):
+        return self.env.shape[0]
+    
+    def yShape(self):
+        return self.env.shape[1]
         
     def free(self, x, y):
         return self.env[x][y] == 0
