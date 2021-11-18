@@ -83,14 +83,12 @@ class Agent:
             #Memoriser une position 
             self.memoriserPosition()
             
-            self.step = 1
-            
             
             # Dict de toutes le positions possibles 
-            positions = {"up": ps.position(self.x, self.y-self.step, mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y - self.step, 2))), 
-                         "right": ps.position(self.x+self.step, self.y, mt.sqrt(mt.pow(self.xGoal - self.x + self.step, 2) + mt.pow(self.yGoal - self.y, 2))), 
-                         "down": ps.position(self.x, self.y+1, mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y + self.step, 2))), 
-                         "left": ps.position(self.x-self.step, self.y, mt.sqrt(mt.pow(self.xGoal - self.x - self.step, 2) + mt.pow(self.yGoal - self.y, 2)))}
+            positions = {"up": ps.position(self.x, self.y-1, mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y - 1, 2))), 
+                         "right": ps.position(self.x+1, self.y, mt.sqrt(mt.pow(self.xGoal - self.x + 1, 2) + mt.pow(self.yGoal - self.y, 2))), 
+                         "down": ps.position(self.x, self.y+1, mt.sqrt(mt.pow(self.xGoal - self.x, 2) + mt.pow(self.yGoal - self.y + 1, 2))), 
+                         "left": ps.position(self.x-1, self.y, mt.sqrt(mt.pow(self.xGoal - self.x - 1, 2) + mt.pow(self.yGoal - self.y, 2)))}
             
             # Dict des positions possible
             positionsPossible = {}
@@ -138,12 +136,9 @@ class Agent:
             else : # Algo de Pledge
                 if bool(positionsImpossible): 
                     action = self.rightTo(list(positionsImpossible.keys())[-1]) 
-                    
-                    while action in positionsImpossible:
-                        action = self.rightTo(action)
-                    
                 else : 
                     action = str(random.choice(list(positionsPossible.keys())))
+                    
             
                 # Aller vers la position qui me rapproche le plus 
                 # if not bool(positionsImpossible) and self.Pledge == False: 

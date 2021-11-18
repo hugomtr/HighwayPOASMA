@@ -17,7 +17,7 @@ def keypressSpace(event):
 def autoRun():
     sma1.moveToGoal()
 
-    root.after(15, autoRun)
+    root.after(1, autoRun)
 
 #Event qui intervient à chaque frappe au clavier
 root.bind("<r>", keypressSpace)

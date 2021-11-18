@@ -18,13 +18,13 @@ class SMA:
         
         ## Réseau d'agent ##
         self.a1 = agt.Agent(130, 260, 350, 20, self.env.xShape(),  self.env.yShape(),  canvas)
-        self.a2 = agt.Agent(50, 170, 380, 380, self.env.xShape(),  self.env.yShape(), canvas)
-        self.a3 = agt.Agent(350, 50, 30, 370, self.env.xShape(),  self.env.yShape(), canvas)
-        self.a4 = agt.Agent(200, 310, 90, 90, self.env.xShape(),  self.env.yShape(), canvas)
+        #self.a2 = agt.Agent(50, 170, 380, 380, self.env.xShape(),  self.env.yShape(), canvas)
+        #self.a3 = agt.Agent(350, 50, 30, 370, self.env.xShape(),  self.env.yShape(), canvas)
+        #self.a4 = agt.Agent(200, 310, 90, 90, self.env.xShape(),  self.env.yShape(), canvas)
 
 
         # Ensemble d'agents
-        self.agents = [self.a1, self.a2, self.a3, self.a4]
+        self.agents = [self.a1] #, self.a2, self.a3, self.a4]
         
     def moveToGoal(self):
         for a in self.agents:
